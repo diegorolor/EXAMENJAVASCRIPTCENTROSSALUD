@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <!--The viewport meta tag is used to improve the presentation and behavior of the samples
+    on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Prueba Practica final</title>
+    
+    
+    <link rel="stylesheet" href="http://js.arcgis.com/3.8/js/dojo/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.27/esri/css/esri.css">
+    <link rel="stylesheet" href="prueba.css"/>
+   
+    
+    
+    
+    <script>var dojoConfig = { parseOnLoad: true };</script>
+    <script src="https://js.arcgis.com/3.27/"></script>
+    
+
+
+
+    <style>
+      #search {
+        display: block;
+        position: absolute;
+        z-index: 2;
+        top: 10px;
+        right: 10px;
+      }
+    </style>
+    <script>
+      
+      var map;
+      var tb;
+      require(["esri/map",
+      "esri/layers/FeatureLayer",
+      
+      "esri/dijit/FeatureTable",
+      "esri/geometry/Extent",
+      "esri/dijit/Legend",
+      "esri/dijit/HomeButton",
+      "esri/dijit/Search",
+      "esri/dijit/BasemapGallery",
+      "esri/dijit/OverviewMap",
+      "esri/dijit/Scalebar",
+      "esri/tasks/BufferParameters",
+      
+      "esri/toolbars/draw",
+      "esri/graphic",
+      "esri/graphicsUtils",
+      
+      "esri/symbols/SimpleFillSymbol",
+      "esri/symbols/SimpleLineSymbol",
+      "esri/symbols/SimpleMarkerSymbol",
+      "esri/Color",
+      
+      "esri/tasks/query",
+      
+      "esri/dijit/PopupTemplate",
+      
+      "dojo/on",
+      
+      "dijit/TitlePane",
+      "dijit/layout/TabContainer",
+     
+      "dijit/layout/BorderContainer",
+      "dojo/domReady!"],
+      function(
+      Map, FeatureLayer, FeatureTable, Extent, Legend, HomeButton, Search, BasemapGallery, OverviewMap, Scalebar,
+      Draw, Graphic, graphicsUtils,
+      SimpleFillSymbol, SimpleLineSymbol, SimpleMarkerSymbol, Color,
+      Query,
+      PopupTemplate,
+      on
+      ) {
+        
+        
+        
+        // Boton "Ir al Estado"
+        on(dojo.byId("progButtonNode"), "click",function (){
+            
+          var inputState = dojo.byId("dtb").value; //obtiene el estado del input
+          
+          //Simbologia del estado selecionado
+          var sbState = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+            new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+            new Color([255,0,0]), 2),new Color([255,255,0,0.5])
+          );
+          
+          //asignación de la simbologia a la entidad selecionada
+          ftStates.setSelectionSymbol(sbState);
+          
+          //Definición de la consulta
+          var queryState = new Query();
+          queryState.where = `state_name = '${inputState}'`; // expreisón para hacer la selección
+          ftStates.selectFeatures(queryState, FeatureLayer.SELECTION_NEW, function (selection){
+            // Hacemos zoom extesión sobre el estado seleccionado
+            var centerSt = graphicsUtils.graphicsExtent(selection).getCenter();
+            var extentSt = esri.graphicsExtent(selection);
+            
+            map.setExtent(extentSt.getExtent().expand(2));
+            map.centerAt(centerSt);
+          });
+          
+        });
+       
+        
+        //Definición de la extensión incial del mapa
+        var extentInitial = new Extent({
+          "xmin": -415811.796930644,
+          "ymin": 4919170.17081106,
+          "xmax":  -400757.003653631,
+          "ymax":  4930449.88246117,
+          "spatialReference": {
+            "wkid":102100 
+          }
+        });
+        
+        //Parametros del Mapa
+        map = new Map("map", {
+          basemap: "topo",
+          extent: extentInitial, //define la extension inical del mapa
+          zoom: 4,
+          sliderStyle: "small",
+        });
+        
+        //Widget para volver a la extension inicial
+        var homeButton = new HomeButton({
+          map: map,
+          extent: extentInitial,
+          visible: true
+        }, "HomeButton");
+        homeButton.startup()
+        
+        map.on("load", function(evt) {
+          map.resize();
+          map.reposition();
+        });
+          
+          
+        
+        var popupStates = new PopupTemplate({
+          title: "Estado de {state_name}, {state_abbr}",
+          fieldInfos: [{
+            fieldName: "pop2000",
+            label: "Población:",
+            visible: true
+          }, {
+            fieldName: "pop00_sqmi",
+            label: "Población por sqmi:",
+            visible: true
+          }, {
+            fieldName: "ss6.gdb.States.area",
+            label: "Area en sqmi:",
+            visible: true,
+            format: {places: 0}
+          }]
+        });
+        
+        //Capa de Centros de salud
+        var Polygons = new FeatureLayer("https://services8.arcgis.com/BtkRLT3YBKaVGV3g/ArcGIS/rest/services/CENTROS_SALUDPRUEBA/FeatureServer/0?token=h7lz1F6tVJHpx7a2SVBPZ69OjcfDm-a0d73THd6Q-isiPvRbE4T-lenso64D0ea-R_TewESFlq3bvVqYZcrYAhb_HepNNb1j3nwXZN-EMXtOGPeG-jlfJjI1M-faH7HpZ6e8VNnzPCI49uTXTudIB1ueJ3WGHtmM9d7hCUwpx3ILB2iW_SibLvDVHktRKsbbDFhlVdd6sl8q-EZCnh8P_EGGjBXnXx_ajq740FCzQNAZgJCP5WkXZSuSoH6JCvb-dpIF6SV8Ftl9WwJzpLHIsA..",{infoTemplate: popupStates, //llama la ventana emergente
+        
+          outFields:["*"]
+          
+        }); 
+
+       
+
+        
+      
+      
+        
+        map.addLayers([Polygons]);
+        
+       
+        var legend = new Legend ({
+          map: map
+        },"legendDiv");
+        legend.startup();
+        
+        
+        var search = new Search({
+          map: map,
+        }, "Search");
+        search.startup();
+        
+        //widget para cambiar el mapa base
+        var basemapGallery = new BasemapGallery({
+          map:map
+        },"basemapGallery");
+        
+        basemapGallery.startup();
+        
+        //Widget de Overview
+        var Overview = new OverviewMap({
+          map:map,
+          visible: true,
+          attachTo: "bottom-left",
+          height: 200,
+          width:200
+        });
+        Overview.startup();
+        
+        //Widget de la escala
+        var scalebar = new Scalebar({
+          map: map,
+          attachTo: "bottom-center",
+          scalebarUnit: "metric"
+        });
+        
+        
+      }); 
+
+
+
+
+      esriConfig.defaults.geometryService.simplify([normalizedGeometry], function(geometries) {
+                params.geometries = geometries;
+                esriConfig.defaults.geometryService.buffer(params, showBuffer);
+              });
+            {
+              params.geometries = [normalizedGeometry];
+              esriConfig.defaults.geometryService.buffer(params, showBuffer);
+            }
+
+          
+        
+        function showBuffer(bufferedGeometries) {
+          var symbol = new SimpleFillSymbol(
+            SimpleFillSymbol.STYLE_SOLID,
+            new SimpleLineSymbol(
+              SimpleLineSymbol.STYLE_SOLID,
+              new Color([255,0,0,0.65]), 2
+            ),
+            new Color([255,0,0,0.35])
+          );
+
+          array.forEach(bufferedGeometries, function(geometry) {
+            var graphic = new Graphic(geometry, symbol);
+            map.graphics.add(graphic);
+          });
+
+        }
+          
+  
+    </script>
+      
+  </head>
+    
+  <body class="claro">
+    <div id="mainWindow"
+    data-dojo-type="dijit.layout.BorderContainer"
+    data-dojo-props="design:'headline', gutters:false"
+    style="width:100%; height:100%;">
+    
+    <div id="header" 
+      data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'top'">
+      
+       <div>PRUEBA CENTROS DE SALUD-ÁREAS MÁS ALEJADAS</div>
+       <div>Diego Rodríguez Lorente</div>
+     <pMaster GIS ESRI España></p>
+      
+    </div>
+    <div data-dojo-type="dijit.layout.ContentPane" id="leftPane" data-dojo-props="region:'left'">
+      <div data-dojo-type="dijit.layout.TabContainer">
+        
+        <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="title:'Leyenda', selected:true">
+          <div id="legendDiv"></div>
+        </div>
+        
+        
+      </div>
+    </div>
+    
+    <div id="map" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'center'">
+      
+      <!--Ubicación del Home button-->  
+      <div id="HomeButton"></div>
+      
+      <!--Ubicación del herramienta de búsqueda-->
+      <div id="Search"></div>
+      
+      <!--Ubicación del galeria de mapas base-->
+      <div id="panelGallery">
+        <div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'<b>Basemap Gallery</b>', open: false">
+          
+            <div id="basemapGallery"></div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div id="footer" data-dojo-type="dijit.layout.ContentPane" data-dojo-props="region:'bottom'">
+      <label for="dtb">Introduzca el nombre de un estado:</label> <input id="dtb" data-dojo-type="dijit/form/TextBox" value="Washington" />
+      <button id="progButtonNode" type="button">Ir al estado</button>
+    </div>
+    
+  </div>
+</body>
+
+</html>
+        

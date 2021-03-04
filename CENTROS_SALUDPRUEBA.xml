@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en">
+	<dataIdInfo>
+		<idCitation>
+			<resTitle>CENTROS_SALUDPRUEBA</resTitle>
+		</idCitation>
+		<idPurp>CENTROS_SALUDPRUEBA</idPurp>
+		<dataChar>
+			<CharSetCd value="004"/>
+		</dataChar>
+		<searchKeys>
+			<keyword>CENTROS_SALUDPRUEBA</keyword>
+		</searchKeys>
+	</dataIdInfo>
+	<Esri>
+		<ArcGISstyle>ISO 19139 Metadata Implementation Specification GML3.2</ArcGISstyle>
+		<CreaDate>2021-03-04</CreaDate>
+		<CreaTime>16:24:58.89</CreaTime>
+		<ModDate>2021-03-04</ModDate>
+		<ModTime>16:25:06.03</ModTime>
+		<ArcGISFormat>1.0</ArcGISFormat>
+		<ArcGISProfile>ISO19139</ArcGISProfile>
+		<PublishStatus>editor:esri.dijit.metadata.editor</PublishStatus>
+	</Esri>
+	<mdDateSt>2021-03-04</mdDateSt>
+	<mdFileID>71b4b73e2c464667a6eef2633504b006</mdFileID>
+	<mdChar>
+		<CharSetCd value="004"/>
+	</mdChar>
+	<mdContact>
+		<role>
+			<RoleCd value="007"/>
+		</role>
+	</mdContact>
+</metadata>
